@@ -59,7 +59,11 @@ class Generate():
     question_token: str = "<question>"
     
     @classmethod
-    def generate_qag(cls, model: Dummy, tokenizer, context: str, answer: str, max_length_tokenizer: int, **kwargs):
+    def generate_qag(cls, model: Dummy,
+                     tokenizer, context: str,
+                     answer: str, max_length_tokenizer: int,
+                     device: str = "cuda",
+                     **kwargs):
         source_encoding = tokenizer(
             '{} {} {} {}'.format(cls.answer_token, answer, cls.context_token, context),
             max_length=max_length_tokenizer,
@@ -70,8 +74,8 @@ class Generate():
         )
 
         generated_ids = model.model.generate(
-            input_ids=source_encoding["input_ids"],
-            attention_mask=source_encoding["attention_mask"],
+            input_ids=source_encoding["input_ids"].to(device),
+            attention_mask=source_encoding["attention_mask"].to(device),
             **kwargs
         )
 
@@ -82,7 +86,11 @@ class Generate():
         return ''.join(preds)
 
     @classmethod
-    def generate_qg(cls, model: Dummy, tokenizer, context, max_length_tokenizer, **kwargs):
+    def generate_qg(cls, model: Dummy,
+        tokenizer, context,
+        max_length_tokenizer,
+        device: str,
+         **kwargs):
         source_encoding = tokenizer(
             '{} {}'.format(cls.context_token, context),
             max_length=max_length_tokenizer,
@@ -93,8 +101,8 @@ class Generate():
         )
 
         generated_ids = model.model.generate(
-            input_ids=source_encoding["input_ids"],
-            attention_mask=source_encoding["attention_mask"],
+            input_ids=source_encoding["input_ids"].to(device),
+            attention_mask=source_encoding["attention_mask"].to(device),
             **kwargs
         )
 
@@ -111,6 +119,7 @@ class Generate():
                         question: str,
                         answer: str,
                         max_length_tokenizer,
+                        device: str = "cuda",
                         **kwargs):
         source_encoding = tokenizer(
             '{} {} {} {} {} {}'.format(cls.answer_token, answer,
@@ -124,8 +133,8 @@ class Generate():
         )
 
         generated_ids = model.model.generate(
-            input_ids=source_encoding["input_ids"],
-            attention_mask=source_encoding["attention_mask"],
+            input_ids=source_encoding["input_ids"].to(device),
+            attention_mask=source_encoding["attention_mask"].to(device),
             **kwargs
         )
 
