@@ -59,7 +59,7 @@ class Generate():
     question_token: str = "<question>"
     
     @classmethod
-    def generate_qag(cls, model: Dummy,
+    def generate_qg(cls, model: Dummy,
                      tokenizer, context: str,
                      answer: str, max_length_tokenizer: int,
                      device: str = "cuda",
@@ -86,7 +86,7 @@ class Generate():
         return ''.join(preds)
 
     @classmethod
-    def generate_qg(cls, model: Dummy,
+    def generate_qag(cls, model: Dummy,
         tokenizer, context,
         max_length_tokenizer,
         device: str,
