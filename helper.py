@@ -1,5 +1,5 @@
 from pytorch_lightning import LightningModule
-from transformers import T5ForConditionalGeneration, AdamW, AutoTokenizer
+from transformers import T5ForConditionalGeneration, AdamW, AutoTokenizer, T5Tokenizer
 from torch import Tensor
 from typing import Mapping
 
@@ -117,12 +117,12 @@ class Generate():
                            model: Dummy,
                            tokenizer,
                            question: str,
-                           max_length: int = 256,
+                           max_length_tokenizer: int = 256,
                            device: str = "cuda",
                            **kwargs):
         source_encoding = tokenizer(
             "paraphrase: {} </s>".format(question),
-            max_length=max_length,
+            max_length=max_length_tokenizer,
             truncation=True,
             return_attention_mask=True,
             return_tensors="pt"
@@ -164,14 +164,17 @@ class Generate():
                                     context,
                                     question,
                                     answer,
-                                    max_length_tokenizer_dg)
+                                    max_length_tokenizer_dg,
+                                    device,
+                                    **dg_kwargs)
+
         distractor_candidates.append(distractor_1)
         paraphase_questions = cls.generate_paraphase(
             model_paraphrase,
             tokenizer_paraphrase,
             question,
             max_length_tokenizer_paraphrase,
-            device
+            device,
             **paraphrase_kwargs
         )
 
@@ -183,7 +186,7 @@ class Generate():
                 question_,
                 answer,
                 max_length_tokenizer_dg,
-                device
+                device,
                 **dg_kwargs
             )
 
@@ -226,3 +229,58 @@ class Generate():
             return ''.join(preds)
         except:
             return "<UNK>"
+"""
+if __name__ == "__main__":
+    context = "JAKSldjasldkajsldkajsdklasjdlkasjdlkasdjlsajdsalkdjsaldkasjdlksajdask"
+    question = "apa itu apa ?"
+    answer = "yes sir"
+    kwargs_para = {
+        "num_beams": 3,
+        "top_p": 0.98,
+        "top_k": 130,
+        "num_return_sequences":6,
+        "repetition_penalty":3.2,
+        "temperature": 1.8,
+        "max_length": 256,
+        "early_stopping":True,
+        "do_sample": True
+}
+
+kwargs_dg = {
+    "num_beams": 3,
+    "top_p": 0.98,
+    "top_k": 120,
+    "temperature": 1.2,
+    "max_length": 512,
+    "num_return_sequences": 1,
+    "repetition_penalty": 1.5,
+    "no_repeat_ngram_size": 2,
+    "early_stopping":True,
+    "do_sample": True
+}
+
+kwargs = {
+    "para_kwargs": kwargs_para,
+    "dg_1_kwargs": kwargs_dg
+}
+
+path_para = "Wikidepia/IndoT5-base-paraphrase"
+
+path_dg = "VosLannack/Distractor_1_t5-small"
+
+token = "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"
+tokenizer_para = T5Tokenizer.from_pretrained(path_para, use_auth_token=token)
+tokenizer_dg = T5Tokenizer.from_pretrained(path_dg, use_auth_token=token)
+
+model_para = T5ForConditionalGeneration.from_pretrained(path_para,return_dict=True ,use_auth_token=token).to("cuda")
+model_dg = T5ForConditionalGeneration.from_pretrained(path_dg, return_dict=True,use_auth_token=token).to("cuda")
+
+dum_para = Dummy(model_para, len(tokenizer_para), 1e-5)
+dum_dg = Dummy(model_dg, len(tokenizer_dg), 1e-5)
+
+out = Generate.generate_dg_1(dum_dg, dum_para, tokenizer_dg,
+                            tokenizer_para, context, question, answer,
+                            512, 256, "cuda", **kwargs)
+
+print(out)
+"""
