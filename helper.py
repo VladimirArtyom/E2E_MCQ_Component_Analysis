@@ -112,6 +112,86 @@ class Generate():
 
         return ''.join(preds)
 
+    @classmethod 
+    def generate_paraphase(cls, 
+                           model: Dummy,
+                           tokenizer,
+                           question: str,
+                           max_length: int = 256,
+                           device: str = "cuda",
+                           **kwargs):
+        source_encoding = tokenizer(
+            "paraphrase: {} </s>".format(question),
+            max_length=max_length,
+            truncation=True,
+            return_attention_mask=True,
+            return_tensors="pt"
+        )
+
+        try:
+            generated_ids = model.model.generate(
+                input_ids=source_encoding["input_ids"].to(device),
+                attention_mask=source_encoding["attention_mask"].to(device),
+                **kwargs
+            )
+            preds = {
+                tokenizer.decode(generated_id, skip_special_tokens=True, clean_up_tokenization=True) for generated_id in generated_ids
+            }
+
+            return "".join(preds)
+        except: 
+            return "<UNK>"
+        
+    @classmethod
+    def generate_dg_1(cls,
+                      model_dg_1: Dummy,
+                      model_paraphrase: Dummy,
+                      tokenizer_dg,
+                      tokenizer_paraphrase,
+                      context: str,
+                      question: str,
+                      answer: str,
+                      max_length_tokenizer_dg: int,
+                      max_length_tokenizer_paraphrase: int,
+                      device: str = "cuda",
+                      **kwargs):
+        paraphrase_kwargs = kwargs.get("para_kwargs")
+        dg_kwargs = kwargs.get("dg_1_kwargs")
+
+        distractor_candidates= []
+        distractor_1 = cls.generate_dg(model_dg_1,
+                                    tokenizer_dg,
+                                    context,
+                                    question,
+                                    answer,
+                                    max_length_tokenizer_dg)
+        distractor_candidates.append(distractor_1)
+        paraphase_questions = cls.generate_paraphase(
+            model_paraphrase,
+            tokenizer_paraphrase,
+            question,
+            max_length_tokenizer_paraphrase,
+            device
+            **paraphrase_kwargs
+        )
+
+        for question_ in paraphase_questions:
+            distractor = cls.generate_dg(
+                model_dg_1,
+                tokenizer_dg,
+                context,
+                question_,
+                answer,
+                max_length_tokenizer_dg,
+                device
+                **dg_kwargs
+            )
+
+            distractor_candidates.append(distractor)
+
+            ## For now just append to it, and return
+        return distractor_candidates            
+
     @classmethod
     def generate_dg(cls, model: Dummy,
                         tokenizer,
@@ -132,14 +212,17 @@ class Generate():
             return_tensors="pt"
         )
 
-        generated_ids = model.model.generate(
-            input_ids=source_encoding["input_ids"].to(device),
-            attention_mask=source_encoding["attention_mask"].to(device),
-            **kwargs
-        )
+        try:
+            generated_ids = model.model.generate(
+                input_ids=source_encoding["input_ids"].to(device),
+                attention_mask=source_encoding["attention_mask"].to(device),
+                **kwargs
+            )
 
-        preds = {
-            tokenizer.decode(generated_id, skip_special_tokens=False,clean_up_tokenization=True) for generated_id in generated_ids
-        }
+            preds = {
+                tokenizer.decode(generated_id, skip_special_tokens=False,clean_up_tokenization=True) for generated_id in generated_ids
+            }
 
-        return ''.join(preds)
+            return ''.join(preds)
+        except:
+            return "<UNK>"
