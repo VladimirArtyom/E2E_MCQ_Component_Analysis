@@ -1,1 +1,5 @@
 __pycache__/
+**.csv
+analysis-helper.py
+**.txt
+**.md
