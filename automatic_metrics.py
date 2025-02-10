@@ -2,7 +2,7 @@ from nltk.translate.bleu_score import sentence_bleu
 from numpy import mean as nmean
 from rouge_score import rouge_scorer
 from typing import List, Tuple
-
+from nltk.tokenize import word_tokenize
 class AutomaticMetrics():
     
     def calculate_bleu(this, references: List[str], generated_candidates: List[str]):
@@ -40,8 +40,8 @@ class AutomaticMetrics():
 
     def _calculate_bleu(this, reference: str, candidate: str) -> Tuple[float, float, float, float]:
 
-        reference_token = reference.lower()
-        candidate_token = candidate.lower()
+        reference_token = word_tokenize(reference.lower())
+        candidate_token = word_tokenize(candidate.lower())
 
         b_1_score = sentence_bleu([reference_token], candidate_token, weights=(1, 0, 0, 0))
         b_2_score = sentence_bleu([reference_token], candidate_token, weights=(0.50, 0.50, 0, 0))

@@ -3,3 +3,5 @@ __pycache__/
 analysis-helper.py
 **.txt
 **.md
+deprecated/
+embeddings/
