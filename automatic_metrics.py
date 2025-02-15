@@ -2,6 +2,7 @@ from nltk.translate.bleu_score import sentence_bleu
 from numpy import mean as nmean
 from rouge_score import rouge_scorer
 from typing import List, Tuple
+from bert_score import score
 from nltk.tokenize import word_tokenize
 class AutomaticMetrics():
     
@@ -20,6 +21,12 @@ class AutomaticMetrics():
             b_4s.append(b_4)
         
         return nmean(b_1s), nmean(b_2s), nmean(b_3s), nmean(b_4s)
+    
+    def calculate_bert_score(this, references: List[str], candidates: List[str], model: str):
+        P, R, F1 = score(candidates, references, lang="id", model_type=model)
+        return nmean(P), nmean(R), nmean(F1)
+
+    
 
     def calculate_rouge(this, references: List[str], candidates: List[str]):
         r_1s = []

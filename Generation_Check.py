@@ -133,7 +133,13 @@ def get_automatic_result(df: pd.DataFrame, target_column: str, pred_column: str 
         bl_3.append(b3)
         bl_4.append(b4)
         rouge_l.append(r)
-    return bl_1, bl_2, bl_3, bl_4, rouge_l 
+    return bl_1, bl_2, bl_3, bl_4, rouge_l  
+
+def get_bert_scores(df: pd.DataFrame, target_column: str, pred_column: str, model: str):
+    references = list(df[target_column].values)
+    candidates = list(df[pred_column].values)
+    P, R, F1 = AutomaticMetrics().calculate_bert_score(references, candidates, model=model)
+    return P, R, F1
 
 def print_metric_result(b1, b2, b3, b4, r):
     print("Bleu 1 : ", np_mean(b1) * 100)
