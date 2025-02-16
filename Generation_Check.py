@@ -141,7 +141,7 @@ def get_bert_scores(df: pd.DataFrame, target_column: str, pred_column: str, mode
     P, R, F1 = AutomaticMetrics().calculate_bert_score(references, candidates, model=model)
     return P, R, F1
 
-def get_bert_scores(df: pd.DataFrame, target_column: str, pred_column: str, model: str):
+def get_sbert_scores(df: pd.DataFrame, target_column: str, pred_column: str, model: str):
     references = list(df[target_column].values)
     candidates = list(df[pred_column].values)
     cos = AutomaticMetrics().calculate_sbert_score(references, candidates, model)
