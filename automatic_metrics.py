@@ -4,6 +4,8 @@ from rouge_score import rouge_scorer
 from typing import List, Tuple
 from bert_score import score
 from nltk.tokenize import word_tokenize
+from sentence_transformers import SentenceTransformer, util
+from typing import List
 class AutomaticMetrics():
     
     def calculate_bleu(this, references: List[str], generated_candidates: List[str]):
@@ -26,6 +28,20 @@ class AutomaticMetrics():
         P, R, F1 = score(candidates, references, lang="id", model_type=model)
         return P, R, F1
 
+    def calculate_sbert_score(this, references: List[str], candidates: List[str], model_name: str):
+        model = SentenceTransformer(model_name)
+        
+       
+        ref_emb = model.encode(references, convert_to_tensor=True)
+        cand_emb = model.encode(candidates, convert_to_tensor=True)
+        
+        
+        cosine_scores = util.pytorch_cos_sim(cand_emb, ref_emb)
+        
+
+        cosine_scores = cosine_scores.diag().tolist()  # Extract diagonal elements (self-similarity)
+        
+        return cosine_scores
     
 
     def calculate_rouge(this, references: List[str], candidates: List[str]):
