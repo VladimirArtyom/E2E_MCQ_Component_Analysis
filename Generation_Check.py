@@ -141,12 +141,15 @@ def get_bert_scores(df: pd.DataFrame, target_column: str, pred_column: str, mode
     P, R, F1 = AutomaticMetrics().calculate_bert_score(references, candidates, model=model)
     return P, R, F1
 
-def print_metric_result(b1, b2, b3, b4, r):
+def print_metric_result(b1, b2, b3, b4, r, prec, rec, f1):
     print("Bleu 1 : ", np_mean(b1) * 100)
     print("Bleu 2 : ", np_mean(b2) * 100 )
     print("Bleu 3 : ", np_mean(b3) * 100)
     print("Bleu 4 : ", np_mean(b4) * 100)
     print("Rouge-L :", np_mean(r) * 100)
+    print("Bert-Score; Precision: ", np_mean(prec))
+    print("Bert-Score; Recall: ", np_mean(rec))
+    print("Bert-Score; F1: ", np_mean(f1))
 
 def load_generation_result(path: str):
     with open(path, "rb") as f:

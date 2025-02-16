@@ -24,7 +24,7 @@ class AutomaticMetrics():
     
     def calculate_bert_score(this, references: List[str], candidates: List[str], model: str):
         P, R, F1 = score(candidates, references, lang="id", model_type=model)
-        return nmean(P), nmean(R), nmean(F1)
+        return P, R, F1
 
     
 
