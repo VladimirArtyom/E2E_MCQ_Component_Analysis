@@ -3,3 +3,4 @@ lightning==2.4.0
 bertviz
 rouge_score
 bert-score
+sentence-transformers
